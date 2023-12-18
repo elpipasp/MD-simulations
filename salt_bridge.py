@@ -43,7 +43,7 @@ for i, data_file in enumerate(data_files):
         frames, distances = zip(*[(int(frame), float(distance)) for frame, distance in data])
 
     # Filter data where distances are less than or equal to 3.2
-    filtered_data = [(frame * 2 / 100, i * markersize) for frame, distance in zip(frames, distances) if distance <= 3.2]
+    filtered_data = [(frame * 2 / 100, i * markersize + markersize / 2) for frame, distance in zip(frames, distances) if distance <= 3.2]
 
     # Calculate duration in frames
     duration_frames = len(filtered_data)
@@ -64,34 +64,31 @@ ax1.set_xlabel('Time (ns)', fontsize=16, fontweight='bold')
 ax1.set_ylabel('Salt bridge', color='black', fontsize=16, fontweight='bold')
 ax1.set_title('Salt Bridges Over Time', fontsize=16, fontweight='bold')
 
-# Set y-axis limits to cover the entire range of data points
-ax1.set_ylim(min(all_y_values) - markersize/2, max(all_y_values) + markersize/2)
-
-# Set x-axis limits from 0 to the maximum value of the 'x_values' column
-ax1.set_xlim(0, max(all_x_values))
-
-# Set y-axis ticks and labels
-yticks = [(i + 0.5) * markersize for i in range(len(data_files))]
+# Set y-axis ticks and labels for the left y-axis at the midpoint of the gridlines
+yticks = np.arange(markersize/2, len(data_files) * markersize, markersize)
 yticklabels = [file.split('saltbr-')[1].replace('.dat', '').replace('-', ' - ') for file in data_files]
 ax1.set_yticks(yticks)
 ax1.set_yticklabels(yticklabels)
 
+# Set y-axis limits to cover the entire range of data points
+ax1.set_ylim(min(all_y_values) - markersize / 2, max(all_y_values) + markersize / 2)
+
 # Add grid lines at the midpoints of consecutive y-ticks
-for ytick in yticks[:-1]:
-    ax1.axhline(y=ytick, color='black', linestyle='-', linewidth=0.5, alpha=0.5)
+for ytick in yticks:
+    ax1.axhline(y=ytick + markersize / 2, color='black', linestyle='-', linewidth=0.5, alpha=0.5)
 
-# Set x-axis ticks every 50 units
-ax1.set_xticks(np.arange(0, max(all_x_values) + 1, 50))
+# Set x-axis limits from 0 to the maximum value of the 'x_values' column
+ax1.set_xlim(0, max(all_x_values))
 
-# Set x-axis ticks every 50 units
-ax1.set_xticks(np.arange(0, max(all_x_values) + 1, 50))
+# Set y-axis ticks and labels for the right y-axis at the midpoint of the markersize
+yticks_right = yticks
+yticklabels_right = [f'{duration:.2f}' for duration in durations]
+ax2.set_yticks(yticks_right)
+ax2.set_yticklabels(yticklabels_right)
 
 # Plot durations on the right y-axis
-
 ax2.set_ylabel('Duration (ns)', color='Black', fontsize=16, fontweight='bold')
 ax2.set_ylim(0, len(data_files) * markersize)
-ax2.set_yticks(yticks)
-ax2.set_yticklabels([f'{duration:.1f}' for duration in durations])
 
 plt.tight_layout()  # Adjust layout to prevent clipping of labels
 plt.show()
