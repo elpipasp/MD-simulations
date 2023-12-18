@@ -30,17 +30,17 @@ plt.yticks(fontsize=14)
 plt.xticks(fontsize=14)
 # Set the x-axis limits and ticks
 plt.xlim(12, 328)
-plt.xticks([12, 20, 67, 74, 93, 110, 145, 152, 177, 204, 244, 257, 293, 302, 328], [12, 20, 67, 74, 93, 110, 145, 152, 177, 204, 244, 257, 293, 302, 328], rotation=90)
+plt.xticks([12, 33, 67, 74, 93, 110, 145, 152, 177, 204, 244, 257, 293, 302, 328], [12, 20, 67, 74, 93, 110, 145, 152, 177, 204, 244, 257, 293, 302, 328], rotation=90)
 
 # Calculate the midpoints of each shaded region
-midpoints = [(20 + 67) / 2, (74 + 93) / 2, (110 + 145) / 2, (152 + 177) / 2, (204 + 244) / 2, (257 + 293) / 2, (302 + 327) / 2]
+midpoints = [(33 + 67) / 2, (74 + 93) / 2, (110 + 145) / 2, (152 + 177) / 2, (204 + 244) / 2, (257 + 293) / 2, (302 + 327) / 2]
 
 # Add labels at a fixed y-coordinate on top of each box
 for midpoint, label in zip(midpoints, ['TM1', 'TM2', 'TM3', 'TM4', 'TM5', 'TM6', 'TM7']):
     plt.text(midpoint, 4.5, label, ha='center', va='center', color='black', fontsize=14, weight='bold')
 
 # Add shaded regions for each TM segment
-plt.axvspan(20, 67, zorder=0, alpha=0.2, color='grey', label='TM1')
+plt.axvspan(33, 67, zorder=0, alpha=0.2, color='grey', label='TM1')
 plt.axvspan(74, 93, zorder=0, alpha=0.2, color='grey', label='TM2')
 plt.axvspan(110, 145, zorder=0, alpha=0.2, color='grey', label='TM3')
 plt.axvspan(152, 177, zorder=0, alpha=0.2, color='grey', label='TM4')
