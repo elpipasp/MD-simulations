@@ -2,38 +2,37 @@ import mdtraj as md
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
+from scipy.stats import gaussian_kde
 
-# Step 1: Define a list of trajectory file names
-trajectory_files = ['D1.dcd', 'D2.dcd', 'D3.dcd', 'D4.dcd']  # Add more file names as needed
+# Step 1: Load MD trajectory
+traj_files = ['D1.dcd', 'D2.dcd', 'D3.dcd', 'D4.dcd', 'D5.dcd', 'D6.dcd', 'D7.dcd', 'D8.dcd', 'D9.dcd', 'D10.dcd']
+traj = md.load(traj_files, top='No_Nter_Gnrh_1_SC.pdb')
 
-# Step 2: Load Trajectories and Select Atom Indices
-all_data = []
+# Step 2: Specify residue range for the peptide
+peptide_residues = range(1, 10)  # Replace with the actual residue range
 
-for traj_file in trajectory_files:
-    trajectory = md.load(traj_file, top='No_Nter_Gnrh_1_SC.pdb')
-    atom_indices = trajectory.top.select("name CA and resid 12 to 328")
-    data = trajectory.xyz[:, atom_indices, :]
-    all_data.append(data)
+# Step 3: Extract peptide coordinates with a specific segment name
+selection_string = f'segname PROB and (residue {peptide_residues[0]} to {peptide_residues[-1]})'
+peptide_traj = traj.atom_slice(traj.topology.select(selection_string))
 
-# Step 3: Concatenate Data from Multiple Trajectories
-all_data = np.concatenate(all_data, axis=0)
+# Step 4: Perform PCA
+peptide_coords = peptide_traj.xyz.reshape(peptide_traj.n_frames, -1)
+pca = PCA(n_components=2)
+peptide_pcs = pca.fit_transform(peptide_coords)
 
-# Step 4: Data Standardization
-data_mean = all_data.mean(axis=0)
-data_std = all_data.std(axis=0)
-data_standardized = (all_data - data_mean) / data_std
+# Step 5: Create a 2D KDE
+x = peptide_pcs[:, 0]
+y = peptide_pcs[:, 1]
+kde = gaussian_kde(np.vstack([x, y]))
 
-# Step 5: Perform PCA using scikit-learn
-num_components = min(all_data.shape[1], all_data.shape[2])
-pca = PCA(n_components=num_components)
-projected_data = pca.fit_transform(data_standardized.reshape(data_standardized.shape[0], -1))
+# Step 6: Evaluate the KDE on a grid
+x_grid, y_grid = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
+z = kde(np.vstack([x_grid.ravel(), y_grid.ravel()]))
 
-# Step 6: Visualize Explained Variance
-explained_variance_ratio = pca.explained_variance_ratio_
-cumulative_variance_ratio = explained_variance_ratio.cumsum()
-
-plt.plot(cumulative_variance_ratio)
-plt.xlabel('Number of Principal Components')
-plt.ylabel('Cumulative Explained Variance')
+# Step 7: Plot the density plot
+plt.pcolormesh(x_grid, y_grid, z.reshape(x_grid.shape), shading='auto', cmap='viridis')
+plt.colorbar(label='Density')
+plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.title('Density Plot in PC Space')
 plt.show()
-
