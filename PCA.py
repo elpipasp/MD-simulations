@@ -3,9 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from scipy.stats import gaussian_kde
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Step 1: Load MD trajectory
-traj_files = ['D1.dcd', 'D2.dcd', 'D3.dcd', 'D4.dcd', 'D5.dcd', 'D6.dcd', 'D7.dcd', 'D8.dcd', 'D9.dcd', 'D10.dcd']
+traj_files = ['D1.dcd']
 traj = md.load(traj_files, top='No_Nter_Gnrh_1_SC.pdb')
 
 # Step 2: Specify residue range for the peptide
@@ -29,10 +30,25 @@ kde = gaussian_kde(np.vstack([x, y]))
 x_grid, y_grid = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
 z = kde(np.vstack([x_grid.ravel(), y_grid.ravel()]))
 
-# Step 7: Plot the density plot
-plt.pcolormesh(x_grid, y_grid, z.reshape(x_grid.shape), shading='auto', cmap='viridis')
-plt.colorbar(label='Density')
-plt.xlabel('PC1')
-plt.ylabel('PC2')
-plt.title('Density Plot in PC Space')
+# Plot the density plot
+fig, ax = plt.subplots()
+im = ax.pcolormesh(x_grid, y_grid, z.reshape(x_grid.shape), shading='auto', cmap='viridis')
+ax.set_xlabel('PCA 1', fontsize=14, fontweight='bold')
+ax.set_ylabel('PCA 2', fontsize=14, fontweight='bold')
+ax.tick_params(axis='both', which='both', length=0)
+
+# Create colorbar
+divider = make_axes_locatable(ax)
+cax = divider.append_axes("bottom", size="5%", pad=0.5)
+cbar = plt.colorbar(im, cax=cax, orientation='horizontal', ticks=[z.min(), z.max()])
+cbar.ax.set_xticklabels(['Low', 'High'], fontsize=10)
+
+# Set Population Density label in bold and adjust pad
+cbar.ax.set_xlabel('Population Density', fontsize=10, fontweight='bold', labelpad=-10)
+
+# Adjust the spacing above the suptitle
+plt.subplots_adjust(top=0.92)
+
+# Title
+plt.suptitle('Density Plot in PC Space', fontsize=14, fontweight='bold')
 plt.show()
