@@ -10,7 +10,7 @@ traj_files = ['D1.dcd']
 traj = md.load(traj_files, top='No_Nter_Gnrh_1_SC.pdb')
 
 # Step 2: Specify residue range for the peptide
-peptide_residues = range(1, 10)  # Replace with the actual residue range
+peptide_residues = range(1, 10)  
 
 # Step 3: Extract peptide coordinates with a specific segment name
 selection_string = f'segname PROB and (residue {peptide_residues[0]} to {peptide_residues[-1]})'
@@ -43,12 +43,12 @@ cax = divider.append_axes("bottom", size="5%", pad=0.5)
 cbar = plt.colorbar(im, cax=cax, orientation='horizontal', ticks=[z.min(), z.max()])
 cbar.ax.set_xticklabels(['Low', 'High'], fontsize=10)
 
-# Set Population Density label in bold and adjust pad
+
 cbar.ax.set_xlabel('Population Density', fontsize=10, fontweight='bold', labelpad=-10)
 
 # Adjust the spacing above the suptitle
 plt.subplots_adjust(top=0.92)
 
-# Title
+
 plt.suptitle('Density Plot in PC Space', fontsize=14, fontweight='bold')
 plt.show()
