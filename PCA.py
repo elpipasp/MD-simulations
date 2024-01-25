@@ -6,11 +6,11 @@ from scipy.stats import gaussian_kde
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # Step 1: Load MD trajectory
-traj_files = ['D1.dcd']
-traj = md.load(traj_files, top='No_Nter_Gnrh_1_SC.pdb')
+traj_files = ['D5.dcd', 'D6.dcd', 'D7.dcd', 'D8.dcd', 'D9.dcd', 'D10.dcd', 'D11.dcd', 'D12.dcd', 'D13.dcd']
+traj = md.load(traj_files, top='ROS_1_SC.pdb')
 
 # Step 2: Specify residue range for the peptide
-peptide_residues = range(1, 10)  
+peptide_residues = range(1, 10)  # Replace with the actual residue range
 
 # Step 3: Extract peptide coordinates with a specific segment name
 selection_string = f'segname PROB and (residue {peptide_residues[0]} to {peptide_residues[-1]})'
@@ -43,12 +43,12 @@ cax = divider.append_axes("bottom", size="5%", pad=0.5)
 cbar = plt.colorbar(im, cax=cax, orientation='horizontal', ticks=[z.min(), z.max()])
 cbar.ax.set_xticklabels(['Low', 'High'], fontsize=10)
 
-
+# Set Population Density label in bold and adjust pad
 cbar.ax.set_xlabel('Population Density', fontsize=10, fontweight='bold', labelpad=-10)
 
 # Adjust the spacing above the suptitle
 plt.subplots_adjust(top=0.92)
 
-
-plt.suptitle('Density Plot in PC Space', fontsize=14, fontweight='bold')
+# Title
+plt.suptitle('PCA ROS-1 (1)', fontsize=14, fontweight='bold')
 plt.show()
