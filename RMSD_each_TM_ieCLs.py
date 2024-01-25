@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 file_names = [
-    'TM1_1ros1_rmsd.dat', 'TM2_1ros1_rmsd.dat', 'TM3_1ros1_rmsd.dat',
-    'TM4_1ros1_rmsd.dat', 'TM5_1ros1_rmsd.dat', 'TM6_1ros1_rmsd.dat',
-    'TM7_1ros1_rmsd.dat'
+    'TM1_rmsd.dat', 'TM2_rmsd.dat', 'TM3_rmsd.dat',
+    'TM4_rmsd.dat', 'TM5_rmsd.dat', 'TM6_rmsd.dat',
+    'TM7_rmsd.dat'
 ]
 
 plt.figure(figsize=(10, 6))
@@ -22,7 +22,7 @@ plt.xlim([0, 600])
 plt.ylim([0, 7])    
 plt.xlabel('Time (ns)', fontsize=14, fontweight='bold')
 plt.ylabel('RMSD (Å)', fontsize=14, fontweight='bold')
-plt.title('7TM RMSD over Time (ROS-1 (1))', fontsize=16, fontweight='bold')
+plt.title('7TM RMSD over Time (ROS-2 (1))', fontsize=16, fontweight='bold')
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.gca().xaxis.set_major_locator(MultipleLocator(50))
