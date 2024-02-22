@@ -2,10 +2,8 @@ import mdtraj as md
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Load trajectory and topology
-trajectory = md.load('trajectory.dcd', top='topology.pdb')
+trajectory = md.load('t.dcd', top='t.pdb')
 
-# Define the CA atom indices for the beginning and end of each TM helix
 tm_indices = [
     (start_index_tm1, end_index_tm1),
     (start_index_tm2, end_index_tm2),
@@ -15,8 +13,7 @@ tm_indices = [
     (start_index_tm6, end_index_tm6),
     (start_index_tm7, end_index_tm7),
 ]
-
-# Function to calculate the angle between two vectors
+#calculate the angle between two vectors
 def calculate_angle(v1, v2):
     dot_product = np.dot(v1, v2)
     norm_v1 = np.linalg.norm(v1)
@@ -25,28 +22,22 @@ def calculate_angle(v1, v2):
     angle_rad = np.arccos(np.clip(cos_theta, -1.0, 1.0))
     angle_deg = np.degrees(angle_rad)
     return angle_deg
-
-# Open output file for writing
+#output file for writing
 with open('vectors.dat', 'w') as output_file:
     output_file.write("TM_Helix_Angle_Degrees\n")
-
-    # Calculate angles for each TM helix
+    # calculate angles for each TM helix
     for tm_start, tm_end in tm_indices:
-        # Extract coordinates of CA atoms for the TM helix
+        # extract coordinates of CA atoms for the TM helix
         tm_coords_start = trajectory.xyz[:, tm_start, :]
         tm_coords_end = trajectory.xyz[:, tm_end, :]
-
-        # Calculate vectors from CA atoms
+        #calculate vectors from CA atoms
         tm_vector = tm_coords_end - tm_coords_start
         z_axis_vector = np.array([0, 0, 1])  # Principal z-axis
-
-        # Calculate the angle between the TM vector and the z-axis
+        #calculate the angle between the TM vector and the z-axis
         angle_deg = calculate_angle(tm_vector, z_axis_vector)
-
-        # Write the angle to the output file
+        #write angle to the output file
         output_file.write(f"{angle_deg:.2f}\n")
-
-# Plot the angles
+#plot
 angles = np.loadtxt('vectors.dat', skiprows=1)  # Skip header row
 plt.plot(angles, marker='o', linestyle='-', label='TM Helix Angles')
 plt.xlabel('TM Helix Index')
