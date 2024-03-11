@@ -4,43 +4,70 @@ import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
 from scipy.stats import gaussian_kde
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from collections import Counter
+from sklearn.cluster import DBSCAN
 
-# Step 1: Load MD trajectory
-traj_files = ['D5.dcd', 'D6.dcd', 'D7.dcd', 'D8.dcd', 'D9.dcd', 'D10.dcd', 'D11.dcd', 'D12.dcd', 'D13.dcd']
+traj_files = ['D21.dcd', 'D22.dcd']
 traj = md.load(traj_files, top='ROS_1_SC.pdb')
 
-# Step 2: Specify residue range for the peptide
-peptide_residues = range(1, 10) 
-
-# Step 3: Extract peptide coordinates with a specific segment name
-selection_string = f'segname PROB and (residue {peptide_residues[0]} to {peptide_residues[-1]})'
+peptide_residues = range(1, 17) 
+selection_string = f'segname PROA and (residue {peptide_residues[0]} to {peptide_residues[-1]})'
 peptide_traj = traj.atom_slice(traj.topology.select(selection_string))
 
-# Step 4: Perform PCA
+#perform PCA
 peptide_coords = peptide_traj.xyz.reshape(peptide_traj.n_frames, -1)
 pca = PCA(n_components=2)
 peptide_pcs = pca.fit_transform(peptide_coords)
 
-# Step 5: Create a 2D KDE
+#create a 2D KDE
 x = peptide_pcs[:, 0]
 y = peptide_pcs[:, 1]
 kde = gaussian_kde(np.vstack([x, y]))
 
-# Step 6: Evaluate the KDE on a grid
+#evaluate the KDE on a grid
 x_grid, y_grid = np.mgrid[x.min():x.max():100j, y.min():y.max():100j]
 z = kde(np.vstack([x_grid.ravel(), y_grid.ravel()]))
 
+# Step 7: Perform DBSCAN clustering
+dbscan = DBSCAN(eps=0.1, min_samples=10) 
+cluster_labels = dbscan.fit_predict(peptide_pcs)
 
-fig, ax = plt.subplots()
-im = ax.pcolormesh(x_grid, y_grid, z.reshape(x_grid.shape), shading='auto', cmap='viridis')
-ax.set_xlabel('PCA 1', fontsize=14, fontweight='bold')
-ax.set_ylabel('PCA 2', fontsize=14, fontweight='bold')
-ax.tick_params(axis='both', which='both', length=0)
-divider = make_axes_locatable(ax)
+#count the number of frames in each cluster
+cluster_counter = Counter(cluster_labels)
+
+# sort clusters based on population
+sorted_clusters = sorted(cluster_counter.items(), key=lambda x: x[1], reverse=True)
+
+#print frame ranges of the three most populated clusters
+for i in range(3):
+    label, count = sorted_clusters[i]
+    frames = np.where(cluster_labels == label)[0]
+    print(f'Cluster {label}: Frame range [{frames.min()}, {frames.max()}], Number of frames: {count}')
+
+#plot
+fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+im = axs[0].pcolormesh(x_grid, y_grid, z.reshape(x_grid.shape), shading='auto', cmap='viridis')
+axs[0].set_xlabel('PCA 1', fontsize=16, fontweight='bold')
+axs[0].set_ylabel('PCA 2', fontsize=16, fontweight='bold')
+axs[0].tick_params(axis='both', which='both', length=0, labelsize=14) 
+divider = make_axes_locatable(axs[0])
 cax = divider.append_axes("bottom", size="5%", pad=0.5)
-cbar = plt.colorbar(im, cax=cax, orientation='horizontal', ticks=[z.min(), z.max()])
-cbar.ax.set_xticklabels(['Low', 'High'], fontsize=10)
-cbar.ax.set_xlabel('Population Density', fontsize=10, fontweight='bold', labelpad=-10)
-plt.subplots_adjust(top=0.92)
-plt.suptitle('PCA ROS-1 (1)', fontsize=14, fontweight='bold')
+cbar = plt.colorbar(im, cax=cax, orientation='horizontal')
+cbar.ax.set_xlabel('Population Density', fontsize=12, fontweight='bold')
+cbar.set_ticks([]) 
+
+#Variance Explained plot
+variance_explained = pca.explained_variance_ratio_
+bars = axs[1].bar(range(1, len(variance_explained) + 1), variance_explained, align='center', color=['forestgreen', 'blue']) 
+axs[1].set_xlabel('Principal Component', fontsize=16, fontweight='bold')
+axs[1].set_ylabel('Variance Explained', fontsize=16, fontweight='bold')
+axs[1].set_xticks([1, 2])
+axs[1].set_yticks([])
+axs[1].tick_params(axis='both', which='both', length=0, labelsize=14)
+
+for i, bar in enumerate(bars):
+    height = bar.get_height()
+    axs[1].text(bar.get_x() + bar.get_width()/2., height, '{:.1%}'.format(variance_explained[i]), ha='center', va='bottom', fontsize=14)
+
+plt.tight_layout(rect=[0, 0, 0.9, 0.95])
 plt.show()
