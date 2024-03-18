@@ -13,10 +13,11 @@ colors = ['red', 'blue']
 custom_colors = ['green', 'purple', 'orange', 'cyan', 'brown', 'magenta', 'teal']
 
 max_frame = 0
+
 for i, file_name in enumerate(file_names):
     df = pd.read_csv(file_name, delim_whitespace=True)
     df['frame'] /= 50
-    if i == 0: 
+    if i == 0:  
         label = '1-17 N-ter'
     elif i == 1: 
         label = '18-33 N-ter'
@@ -35,7 +36,7 @@ plt.ylabel('RMSD (Å)', fontsize=14, fontweight='bold')
 plt.title('ROS-1 #2', fontsize=16, fontweight='bold')
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
-plt.gca().xaxis.set_major_locator(MultipleLocator(100))
+plt.gca().xaxis.set_major_locator(MultipleLocator(100)) 
 plt.legend(loc='upper right')  
 plt.grid(False)  
 plt.show()
